@@ -118,7 +118,7 @@ public class ShowDaoImpl implements ShowDao {
     }
 
 	@Override
-	public Optional<Show> findById(int id) {
+	public Optional<Show> findById(int id) throws ShowException {
 		// TODO Auto-generated method stub
 		try {
             establishConnection();
@@ -232,7 +232,7 @@ public class ShowDaoImpl implements ShowDao {
 	}
 
 	@Override
-	public List<Show> findByTitle(String show) {
+	public List<Show> findByTitle(String show) throws ShowException{
 		// TODO Auto-generated method stub
 	try {
             establishConnection();
@@ -266,6 +266,7 @@ public class ShowDaoImpl implements ShowDao {
 		return null;
 	}
 
+	@Override
 	public boolean userDoesExist(String username, String password){
         try {
             establishConnection();
@@ -277,7 +278,7 @@ public class ShowDaoImpl implements ShowDao {
             ResultSet rs = pStmt.executeQuery();
 
             if (rs.next()) {
-                return rs.getInt(1) > 0;
+                return rs.getString(2).equals(username) && rs.getString(4).equals(password);
             }
 
         } catch(SQLException e){

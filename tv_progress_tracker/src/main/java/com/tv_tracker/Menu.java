@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 import com.tv_tracker.dao.Show;
 import com.tv_tracker.dao.ShowDaoImpl;
+import com.tv_tracker.dao.ShowException;
 import com.tv_tracker.dao.User;
 
 public class Menu {
@@ -16,21 +17,22 @@ public class Menu {
 	// use service class you created to handle all the CRUD operations
 	public static ShowDaoImpl db_connection = new ShowDaoImpl();
 
-	public static void mainMenu() {
+	public static void mainMenu() throws ShowException {
 
 		// once we enter menu, can initialize scanner
 		sc = new Scanner(System.in);
 
         String username, password;
+        System.out.println("Welcome to the TV Show Progress Tracker Application!\n");
 
-        do {
-            System.out.println("Welcome to the TV Show Progress Tracker Application!\n");
-            System.out.println("Please enter your Username:");
-            username = sc.nextLine();
-            System.out.println("\nPlease enter your Password:");
-            password = sc.nextLine();
-
-        } while (!db_connection.userDoesExist(username, password));
+        System.out.println("Please enter your Username:");
+        username = sc.nextLine();
+        System.out.println("\nPlease enter your Password:");
+        password = sc.nextLine();
+    
+        if(!db_connection.userDoesExist(username, password)){
+            throw new ShowException("Invalid Username or Password. Please run the application again");
+        }
 
         User user = db_connection.createUser(username, password);
         
@@ -85,8 +87,6 @@ public class Menu {
         }
 	}
 
-
-
     public static void showsList(){
 
         // Get list for all shows using getAll function
@@ -111,11 +111,13 @@ public class Menu {
         }
     }
 
-    public static void addShowEntry(User user){
+    public static void addShowEntry(User user) throws ShowException{
         System.out.println("Enter title for the show you want to track: \n");
         String show_name = sc.nextLine();
 
-        List<Show> ShowList = db_connection.findByTitle(show_name);
+        List<Show> ShowList;
+
+        ShowList = db_connection.findByTitle(show_name);
 
         if(ShowList.isEmpty()){
             System.out.println("No results found for: " + show_name + "\n");
@@ -123,7 +125,13 @@ public class Menu {
         }
 
         else if(ShowList.size() == 1){
-            confirm_show(user, ShowList, 0);
+            try {
+                confirm_show(user, ShowList, 0);
+            } catch (ShowException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            return;
         }
 
         else if(ShowList.size() > 1){
@@ -146,7 +154,12 @@ public class Menu {
                 return;
             }
             else{
-                confirm_show(user, ShowList, choice - 1);
+                try {
+                    confirm_show(user, ShowList, choice - 1);
+                } catch (ShowException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 return;
             }
         }
@@ -239,7 +252,7 @@ public class Menu {
     }
 
     // repeated code
-    public static void confirm_show(User user, List<Show> ShowList, int index){
+    public static void confirm_show(User user, List<Show> ShowList, int index) throws ShowException{
         System.out.println("Would you like to add '" + ShowList.get(index).getTitle() + "' to your tracked shows? ('Y' for yes, 'N' for no)");
         String answer = sc.nextLine().toUpperCase();
 
@@ -249,7 +262,7 @@ public class Menu {
             System.out.println("2. In progress");
             System.out.println("3. Completed");
 
-            Show newShow = ShowList.get(0);
+            Show newShow = ShowList.get(index);
 
             int progress = sc.nextInt();
             sc.nextLine();

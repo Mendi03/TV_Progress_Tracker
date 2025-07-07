@@ -31,7 +31,7 @@ public interface ShowDao {
 	
 	// Find a shows by its id and returns an Optional of show (check notes/code from Java Streams to rereview
 	// Optional and how to use them)
-	public Optional<Show> findById(int id);
+	public Optional<Show> findById(int id) throws ShowException;
 	
 	// Updates values for a given shows, assume that the shows object contains the id for the shows to change.
 	// Any values that aren't the id could have been changed, so update them all. As well, as long as the shows
@@ -49,7 +49,7 @@ public interface ShowDao {
 
 	// Return a list of shows who all work in the same restaurant, if no showss are in the restaurant given
 	// it is okay to return an empty list
-	public List<Show> findByTitle(String title);
+	public List<Show> findByTitle(String title) throws ShowException;
 
     public boolean userDoesExist(String username, String password);
 
